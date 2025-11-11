@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Reportes de Hoyos{% endblock %}</title>
+
+  <!-- Tailwind desde CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+  <header class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">Sistema de Reportes de Hoyos</h1>
+      <nav>
+        <a href="{% url 'inicio' %}" class="px-3 hover:underline">Inicio</a>
+        <a href="{% url 'nuevo_reporte' %}" class="px-3 hover:underline">Nuevo reporte</a>
+        <a href="{% url 'mis_reportes' %}" class="px-3 hover:underline">Mis reportes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center py-4 mt-8">
+    <p>&copy; 2025 Aplicación de Reportes</p>
+  </footer>
+
+</body>
+</html>

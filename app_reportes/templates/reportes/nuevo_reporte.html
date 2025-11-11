@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo Reporte{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-bold mb-4 text-blue-600 text-center">Crear nuevo reporte</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium">Descripción del hoyo</label>
+      {{ form.descripcion }}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium">Ubicación</label>
+      {{ form.ubicacion }}
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      Enviar reporte
+    </button>
+  </form>
+
+  <div class="text-center mt-4">
+    <a href="{% url 'mis_reportes' %}" class="text-blue-500 hover:underline">Ver mis reportes</a>
+  </div>
+</div>
+{% endblock %}
