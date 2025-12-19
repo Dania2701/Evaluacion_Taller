@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'usuario/base_public.html' %}
 {% block title %}Registro{% endblock %}
 
 {% block content %}
@@ -12,18 +12,22 @@
       <div>
         <label class="block text-gray-700">Usuario</label>
         {{ form.username }}
+        <p class="text-red-500 text-sm">{{ form.username.errors }}</p>
       </div>
       <div>
         <label class="block text-gray-700">Correo electrónico</label>
         {{ form.email }}
+        <p class="text-red-500 text-sm">{{ form.email.errors }}</p>
       </div>
       <div>
         <label class="block text-gray-700">Contraseña</label>
         {{ form.password1 }}
+        <p class="text-red-500 text-sm">{{ form.password1.errors }}</p>
       </div>
       <div>
         <label class="block text-gray-700">Confirmar contraseña</label>
         {{ form.password2 }}
+        <p class="text-red-500 text-sm">{{ form.password2.errors }}</p>
       </div>
     </div>
 

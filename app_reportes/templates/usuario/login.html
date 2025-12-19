@@ -1,35 +1,51 @@
-{% extends 'base.html' %}
+{% extends 'usuario/base_public.html' %}
 {% block title %}Iniciar sesión{% endblock %}
 
 {% block content %}
 <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow">
-  
-  {% if es_admin_login %}
-    <h2 class="text-2xl font-bold mb-4 text-center text-green-600">Iniciar sesión como Administrador</h2>
+
+  {% if es_admin %}
+    <h2 class="text-2xl font-bold mb-4 text-center text-green-600">
+      Iniciar sesión como Administrador
+    </h2>
   {% else %}
-    <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">Iniciar sesión como Usuario</h2>
+    <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">
+      Iniciar sesión como Usuario
+    </h2>
   {% endif %}
 
   <form method="POST">
     {% csrf_token %}
     {{ form.non_field_errors }}
+
     <div class="mb-4">
-      <label class="block text-gray-700">Usuario</label>
+      <label class="block text-gray-700 font-medium mb-1">
+        Usuario
+      </label>
       {{ form.username }}
     </div>
+
     <div class="mb-4">
-      <label class="block text-gray-700">Contraseña</label>
+      <label class="block text-gray-700 font-medium mb-1">
+        Contraseña
+      </label>
       {{ form.password }}
     </div>
 
-    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+    <button type="submit"
+      class="w-full {% if es_admin %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %}
+             text-white py-2 rounded font-semibold">
       Ingresar
     </button>
   </form>
 
-  <p class="text-center mt-4 text-sm">
+{% if not es_admin %}
+  <p class="text-center mt-4 text-sm text-gray-600">
     ¿No tienes cuenta?
-    <a href="{% url 'registro' %}" class="text-blue-500 hover:underline">Regístrate aquí</a>
+    <a href="{% url 'registro' %}" class="text-blue-500 hover:underline">
+      Regístrate aquí
+    </a>
   </p>
+{% endif %}
 </div>
 {% endblock %}

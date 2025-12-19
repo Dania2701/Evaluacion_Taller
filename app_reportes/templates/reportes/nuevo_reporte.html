@@ -3,29 +3,95 @@
 
 {% block content %}
 <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-bold mb-4 text-blue-600 text-center">Crear nuevo reporte</h2>
+  <h2 class="text-2xl font-bold mb-4 text-blue-600 text-center">
+    Crear nuevo reporte
+  </h2>
 
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.non_field_errors }}
+    {{ form.errors }}
 
     <div class="mb-4">
-      <label class="block text-gray-700 font-medium">Descripción del hoyo</label>
+      <label class="block text-gray-700 font-medium">Título</label>
+      {{ form.titulo }}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium">Descripción del problema</label>
       {{ form.descripcion }}
     </div>
 
     <div class="mb-4">
-      <label class="block text-gray-700 font-medium">Ubicación</label>
-      {{ form.ubicacion }}
+      <label class="block text-gray-700 font-medium">
+        Referencia (ej: esquina, frente a local, etc.)
+      </label>
+      {{ form.referencia }}
     </div>
 
-    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium">Foto (opcional)</label>
+      {{ form.foto }}
+    </div>
+
+    {{ form.latitud }}
+    {{ form.longitud }}
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-medium mb-2">
+        Selecciona la ubicación en el mapa
+      </label>
+      <div id="map" class="w-full h-64 rounded"></div>
+    </div>
+
+    <button type="submit"
+      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
       Enviar reporte
     </button>
   </form>
 
   <div class="text-center mt-4">
-    <a href="{% url 'mis_reportes' %}" class="text-blue-500 hover:underline">Ver mis reportes</a>
+    <a href="{% url 'mis_reportes' %}"
+       class="text-blue-500 hover:underline">
+       Ver mis reportes
+    </a>
   </div>
 </div>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  const map = L.map('map').setView([-33.45, -70.66], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  let marker;
+
+  map.on('click', function(e) {
+    if (marker) {
+      map.removeLayer(marker);
+    }
+    marker = L.marker(e.latlng).addTo(map);
+
+    document.getElementById('id_latitud').value = e.latlng.lat.toFixed(6);
+    document.getElementById('id_longitud').value = e.latlng.lng.toFixed(6);
+  });
+
+  // 🔴 VALIDACIÓN: no enviar sin ubicación
+  const form = document.querySelector("form");
+
+  form.addEventListener("submit", function(e) {
+    const lat = document.getElementById("id_latitud").value;
+    const lng = document.getElementById("id_longitud").value;
+
+    if (!lat || !lng) {
+      e.preventDefault();
+      alert("Por favor, selecciona una ubicación en el mapa antes de enviar el reporte.");
+    }
+  });
+</script>
 {% endblock %}

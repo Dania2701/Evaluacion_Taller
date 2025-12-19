@@ -6,17 +6,72 @@
   <title>{% block title %}Reportes de Hoyos{% endblock %}</title>
 
   <!-- Tailwind desde CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <style>
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+  </style>
 </head>
+
 <body class="bg-gray-100 text-gray-800">
 
   <header class="bg-blue-600 text-white p-4">
     <div class="container mx-auto flex justify-between items-center">
       <h1 class="text-xl font-bold">Sistema de Reportes de Hoyos</h1>
-      <nav>
-        <a href="{% url 'inicio' %}" class="px-3 hover:underline">Inicio</a>
-        <a href="{% url 'nuevo_reporte' %}" class="px-3 hover:underline">Nuevo reporte</a>
-        <a href="{% url 'mis_reportes' %}" class="px-3 hover:underline">Mis reportes</a>
+
+      <nav class="flex items-center space-x-2">
+
+        {% if user.is_authenticated %}
+
+          {% if user.usuario.es_admin %}
+            <!-- MENÚ ADMIN -->
+            <a href="{% url 'panel_admin' %}" class="px-3 hover:underline">
+              Reportes
+            </a>
+
+          {% else %}
+            <!-- MENÚ USUARIO -->
+            <a href="{% url 'nuevo_reporte' %}" class="px-3 hover:underline">
+              Nuevo reporte
+            </a>
+            <a href="{% url 'mis_reportes' %}" class="px-3 hover:underline">
+              Mis reportes
+            </a>
+          {% endif %}
+
+          <!-- Cerrar sesión (común) -->
+          <form method="post" action="{% url 'logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit"
+              class="px-4 py-2 bg-red-600 text-white rounded-lg
+                     hover:bg-red-700 transition">
+              Cerrar sesión
+            </button>
+          </form>
+
+        {% else %}
+          <!-- NO autenticado -->
+          <a href="{% url 'login' %}"
+             class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+            Iniciar sesión
+          </a>
+        {% endif %}
+
       </nav>
     </div>
   </header>

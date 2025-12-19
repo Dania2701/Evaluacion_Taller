@@ -2,15 +2,22 @@
 {% block title %}Mis Reportes{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-bold mb-6 text-blue-600 text-center">Mis reportes enviados</h2>
+<div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-bold mb-6 text-blue-600 text-center">
+    Mis reportes enviados
+  </h2>
 
   {% if reportes %}
+
+    <!-- MAPA -->
+    <div id="map" class="w-full h-96 rounded mb-6"></div>
+
+    <!-- TABLA -->
     <table class="min-w-full border border-gray-200">
       <thead>
         <tr class="bg-blue-100 text-left">
-          <th class="p-3 border-b">Descripción</th>
-          <th class="p-3 border-b">Ubicación</th>
+          <th class="p-3 border-b">Título</th>
+          <th class="p-3 border-b">Referencia</th>
           <th class="p-3 border-b">Fecha</th>
           <th class="p-3 border-b">Estado</th>
         </tr>
@@ -18,9 +25,13 @@
       <tbody>
         {% for reporte in reportes %}
           <tr class="hover:bg-gray-50">
-            <td class="p-3 border-b">{{ reporte.descripcion }}</td>
-            <td class="p-3 border-b">{{ reporte.ubicacion }}</td>
-            <td class="p-3 border-b">{{ reporte.fecha_reporte|date:"d/m/Y H:i" }}</td>
+            <td class="p-3 border-b">{{ reporte.titulo }}</td>
+            <td class="p-3 border-b">
+              {{ reporte.referencia|default:"Sin referencia" }}
+            </td>
+            <td class="p-3 border-b">
+              {{ reporte.fecha_reporte|date:"d/m/Y H:i" }}
+            </td>
             <td class="p-3 border-b">
               {% if reporte.estado == "Pendiente" %}
                 <span class="text-yellow-600 font-semibold">{{ reporte.estado }}</span>
@@ -34,14 +45,50 @@
         {% endfor %}
       </tbody>
     </table>
+
   {% else %}
-    <p class="text-center text-gray-600">Aún no has enviado ningún reporte.</p>
+    <p class="text-center text-gray-600">
+      Aún no has enviado ningún reporte.
+    </p>
   {% endif %}
 
-  <div class="text-center mt-6">
-    <a href="{% url 'nuevo_reporte' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+  <!-- BOTONES -->
+  <div class="flex justify-center gap-4 mt-6">
+    <a href="{% url 'nuevo_reporte' %}"
+       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
       Crear nuevo reporte
+    </a>
+
+    <a href="{% url 'logout' %}"
+       class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+      Cerrar sesión
     </a>
   </div>
 </div>
+
+{% if reportes %}
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([-33.45, -70.66], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    {% for reporte in reportes %}
+      {% if reporte.latitud and reporte.longitud %}
+        L.marker([{{ reporte.latitud }}, {{ reporte.longitud }}])
+          .addTo(map)
+          .bindPopup(
+            '<strong>{{ reporte.titulo|escapejs }}</strong><br>' +
+            'Estado: {{ reporte.estado|escapejs }}<br>' +
+            '{{ reporte.referencia|default:"Sin referencia"|escapejs }}'
+          );
+      {% endif %}
+    {% endfor %}
+  </script>
+{% endif %}
 {% endblock %}

@@ -3,45 +3,104 @@
 {% block title %}Panel del Administrador{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">Panel del Administrador</h2>
-  <p class="text-center text-gray-600 mb-6">Aquí puedes revisar y actualizar los reportes enviados por los usuarios.</p>
+<div class="max-w-6xl mx-auto bg-white p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-bold mb-4 text-center text-blue-600">
+    Panel del Administrador
+  </h2>
+
+  <p class="text-center text-gray-600 mb-6">
+    Aquí puedes revisar y actualizar los reportes enviados por los usuarios.
+  </p>
 
   {% if reportes %}
+
+    <!-- MAPA -->
+    <div id="map" class="w-full h-96 rounded mb-6"></div>
+
+    <!-- TABLA -->
     <table class="min-w-full border border-gray-300">
       <thead class="bg-blue-100">
         <tr>
           <th class="p-2 border">Usuario</th>
-          <th class="p-2 border">Descripción</th>
-          <th class="p-2 border">Ubicación</th>
+          <th class="p-2 border">Título</th>
+          <th class="p-2 border">Referencia</th>
           <th class="p-2 border">Estado</th>
           <th class="p-2 border">Acción</th>
         </tr>
       </thead>
+
       <tbody>
         {% for reporte in reportes %}
-        <tr class="border-b hover:bg-gray-50">
-          <td class="p-2 border">{{ reporte.usuario.user.username }}</td>
-          <td class="p-2 border">{{ reporte.descripcion }}</td>
-          <td class="p-2 border">{{ reporte.ubicacion }}</td>
-          <td class="p-2 border font-semibold">{{ reporte.estado }}</td>
-          <td class="p-2 border text-center">
-            <form method="POST" action="{% url 'cambiar_estado' reporte.id %}">
-              {% csrf_token %}
-              <select name="estado" class="border rounded p-1">
-                {% for valor, etiqueta in reporte.ESTADOS %}
-                  <option value="{{ valor }}" {% if reporte.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
-                {% endfor %}
-              </select>
-              <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Guardar</button>
-            </form>
-          </td>
-        </tr>
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border">
+              {{ reporte.usuario.username }}
+            </td>
+
+            <td class="p-2 border">
+              {{ reporte.titulo }}
+            </td>
+
+            <td class="p-2 border">
+              {{ reporte.referencia|default:"Sin referencia" }}
+            </td>
+
+            <td class="p-2 border font-semibold">
+              {{ reporte.estado }}
+            </td>
+
+            <td class="p-2 border text-center">
+              <form method="POST" action="{% url 'cambiar_estado' reporte.id %}">
+                {% csrf_token %}
+                <select name="estado" class="border rounded p-1">
+                  {% for valor, etiqueta in reporte.ESTADOS_CHOICES %}
+                    <option value="{{ valor }}"
+                      {% if reporte.estado == valor %}selected{% endif %}>
+                      {{ etiqueta }}
+                    </option>
+                  {% endfor %}
+                </select>
+
+                <button type="submit"
+                  class="ml-2 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                  Guardar
+                </button>
+              </form>
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
+
   {% else %}
-    <p class="text-center text-gray-500">No hay reportes registrados.</p>
+    <p class="text-center text-gray-500">
+      No hay reportes registrados.
+    </p>
   {% endif %}
 </div>
+
+{% if reportes %}
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('map').setView([-33.45, -70.66], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    {% for reporte in reportes %}
+      {% if reporte.latitud and reporte.longitud %}
+        L.marker([{{ reporte.latitud }}, {{ reporte.longitud }}])
+          .addTo(map)
+          .bindPopup(
+            '<strong>{{ reporte.titulo|escapejs }}</strong><br>' +
+            'Estado: {{ reporte.estado|escapejs }}<br>' +
+            '{{ reporte.referencia|default:"Sin referencia"|escapejs }}'
+          );
+      {% endif %}
+    {% endfor %}
+  </script>
+{% endif %}
 {% endblock %}
